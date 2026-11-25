@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>たんいマスター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 5さいの こどもが ひとりで さわれる、あたたかい あそび道具
+   IDEA: 壁のポスター「いろんな単位」が しゃべって 動き出す
+   PICTURE: 定規キャラ「はかるん」と、大きな たんいカード
+   COLOUR/TYPE: クリーム地 / 朱 #e25141 / 青 #3a6ea8 / 黄 #ffd84a、Zen Maru Gothic
+   LAYOUT: 1カラム max 720px、ボタンは最低 64px */
+:root{color-scheme:light;--bg:#fff6e5;--ink:#2a2f3a;--red:#e25141;--blue:#3a6ea8;--amber:#c08a2d;--yel:#ffd84a;--grn:#3f9a6b;--line:#f0dfc0;--sub:#7a6f5d}
+:root[data-theme=dark],:root[data-theme=light]{color-scheme:light}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:700 20px/1.6 "Zen Maru Gothic",system-ui,sans-serif;min-height:100dvh;overflow-x:clip;user-select:none;-webkit-user-select:none}
+.wrap{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+.scr{display:none}.scr.on{display:block;animation:pop .25s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.scr.on,.bounce{animation:none!important}}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.title{font-size:26px;font-weight:900;letter-spacing:.02em}
+.cnt{font-size:16px;background:#fff;border:2px solid var(--line);border-radius:999px;padding:2px 14px;white-space:nowrap}
+.hero{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
+.hero svg{width:110px;height:auto;flex:none}
+.bubble{position:relative;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:10px 14px;font-size:19px;line-height:1.5}
+.bubble::before{content:"";position:absolute;left:-14px;top:24px;border:7px solid transparent;border-right-color:var(--ink);border-width:8px 14px 8px 0}
+.card{background:#fff;border:3px solid var(--line);border-radius:26px;padding:16px;margin:12px 0}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:68px;border:0;border-radius:22px;font:inherit;font-size:22px;color:#fff;background:var(--red);box-shadow:0 6px 0 #b53a2d;margin:12px 0;cursor:pointer;padding:8px 16px;text-align:center}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b53a2d}
+.btn.blue{background:var(--blue);box-shadow:0 6px 0 #284f7a}.btn.blue:active{box-shadow:0 2px 0 #284f7a}
+.btn.yel{background:var(--yel);color:var(--ink);box-shadow:0 6px 0 #c9a521}.btn.yel:active{box-shadow:0 2px 0 #c9a521}
+.btn.grn{background:var(--grn);box-shadow:0 6px 0 #2a6e4b}.btn.grn:active{box-shadow:0 2px 0 #2a6e4b}
+.btn.ghost{background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:none;min-height:56px;font-size:18px}
+.btn:focus-visible,.opt:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.row2 .btn{margin:0}
+.small{font-size:15px;color:var(--sub);font-weight:500}
+.steps{display:flex;justify-content:center;gap:8px;margin:4px 0 8px}
+.steps i{width:44px;height:10px;border-radius:5px;background:#ecdcbf}.steps i.on{background:var(--red)}.steps i.done{background:var(--amber)}
+.ucard{text-align:center;background:#fff;border:4px solid var(--ink);border-radius:30px;padding:18px 12px;margin:10px 0}
+.ucard .pic{font-size:72px;line-height:1.1}
+.ucard .sym{font-size:clamp(72px,22vw,120px);font-weight:900;line-height:1.05;color:var(--red)}
+.ucard .rd{font-size:30px;font-weight:900}
+.ucard .ex{font-size:20px;margin-top:8px;color:var(--ink)}
+.q{font-size:26px;font-weight:900;text-align:center;margin:8px 0}
+.prompt{text-align:center;font-size:26px;background:#fff;border-radius:22px;padding:14px;border:3px solid var(--line)}
+.prompt .pic{font-size:64px;display:block;line-height:1.2}
+.box{display:inline-block;min-width:1.8em;border:4px dashed var(--red);border-radius:12px;padding:0 6px;color:var(--red)}
+.opts{display:grid;gap:12px;margin:14px 0;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.opt{font:inherit;background:#fff;border:4px solid var(--line);border-radius:24px;min-height:120px;padding:10px;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.opt .pic{font-size:60px;line-height:1.1}
+.opt .nm{font-size:18px;line-height:1.35}
+.opt .big{font-size:clamp(34px,10vw,52px);font-weight:900;line-height:1.1}
+.opt .amt{font-size:22px;color:var(--blue);font-weight:900;min-height:1.4em}
+.opt.ok{border-color:var(--grn);background:#e8f6ee}
+.opt.ng{border-color:#d9c9ad;opacity:.55}
+.fb{text-align:center;font-size:24px;font-weight:900;min-height:1.5em;margin:4px 0}
+.fb.ok{color:var(--grn)}.fb.ng{color:var(--amber)}
+.mark{font-size:80px;line-height:1;text-align:center;color:var(--red)}
+.bounce{animation:bn .5s ease-out}
+@keyframes bn{0%{transform:scale(.3)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.stamps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+.stamps button{font-size:56px;min-height:100px;background:#fff;border:4px solid var(--line);border-radius:24px;cursor:pointer}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center}
+.cal b{font-size:14px;color:var(--sub)}
+.cal span{background:#fff;border:2px solid var(--line);border-radius:12px;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:var(--sub);line-height:1.1}
+.cal span em{font-style:normal;font-size:26px;line-height:1.1}
+.cal span.today{border-color:var(--red)}
+.cal span.x{visibility:hidden}
+.medals{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.medal{background:#fff;border:3px solid var(--line);border-radius:16px;padding:4px 12px;font-size:16px;white-space:nowrap}
+.medal.got{border-color:var(--amber);background:#fff3d6}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.grid3 button{font:inherit;background:#fff;border:4px solid var(--line);border-radius:22px;min-height:110px;cursor:pointer;color:var(--ink)}
+.grid3 .sy{display:block;font-size:40px;font-weight:900;color:var(--red);line-height:1.1}
+.grid3 .rd{display:block;font-size:15px}
+.timer{text-align:center;font-size:clamp(64px,20vw,110px);font-weight:900;color:var(--blue);margin:10px 0;font-variant-numeric:tabular-nums}
+.seg{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.seg button{font:inherit;font-size:18px;min-height:48px;padding:0 18px;border-radius:999px;border:3px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* parent */
+.par{font:500 16px/1.8 "Zen Maru Gothic",system-ui,sans-serif}
+.par h3{font-size:18px;margin:18px 0 6px;font-weight:900}
+.par table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;font-size:15px}
+.par th,.par td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+.par td.n{text-align:right;font-variant-numeric:tabular-nums}
+.par textarea{width:100%;font:inherit;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:10px;min-height:80px;user-select:text;-webkit-user-select:text}
+.par .memo{background:#fff;border-radius:12px;padding:8px 12px;margin:6px 0;border:1px solid var(--line);display:flex;gap:8px;justify-content:space-between;align-items:flex-start;user-select:text;-webkit-user-select:text}
+.par .memo small{color:var(--sub);white-space:nowrap}
+.par .x{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:2px 8px;cursor:pointer;color:var(--sub)}
+.par .talk{background:#fff3d6;border-radius:14px;padding:10px 14px;border:2px solid #efd59a}
+.pbtn{font:inherit;font-size:13px;color:var(--sub);background:none;border:1px dashed #d8c5a3;border-radius:999px;padding:8px 16px;display:block;margin:22px auto 0;cursor:pointer;min-height:44px;position:relative;overflow:hidden}
+.pbtn .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#f3e3c3;z-index:-1}
+.toggle{display:flex;align-items:center;gap:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HOME -->
+<section class="scr on" id="home">
+  <div class="top"><div class="title">たんいマスター</div><div class="cnt" id="hCount">スタンプ 0</div></div>
+  <div class="hero"><svg viewBox="0 0 120 130" aria-hidden="true" id="hkr"></svg><div class="bubble" id="hMsg">きょうも いっしょに はかろう！</div></div>
+  <div id="hToday"></div>
+  <div class="row2">
+    <button class="btn blue" data-to="play">あそぶ</button>
+    <button class="btn yel" data-to="book" style="font-size:19px">スタンプちょう</button>
+  </div>
+  <button class="pbtn" id="pGate"><span class="fill" id="pFill"></span>おうちのひとへ（ながおし）</button>
+</section>
+
+<!-- LEARN -->
+<section class="scr" id="learn">
+  <div class="steps" id="stp1"></div>
+  <div class="q">きょうの たんい</div>
+  <div class="ucard"><div class="pic" id="lPic"></div><div class="sym" id="lSym"></div><div class="rd" id="lRd"></div><div class="ex" id="lEx"></div></div>
+  <button class="btn ghost" id="lSay">もういちど きく</button>
+  <button class="btn" id="lNext">クイズへ すすむ</button>
+</section>
+
+<!-- QUIZ -->
+<section class="scr" id="quiz">
+  <div class="steps" id="stp2"></div>
+  <div class="small" style="text-align:center" id="qNum"></div>
+  <div class="q" id="qText"></div>
+  <div id="qPrompt"></div>
+  <div class="opts" id="qOpts"></div>
+  <div class="fb" id="qFb"></div>
+  <button class="btn" id="qNext" style="visibility:hidden">つぎへ</button>
+</section>
+
+<!-- MISSION -->
+<section class="scr" id="mission">
+  <div class="steps" id="stp3"></div>
+  <div class="q">おうち ミッション</div>
+  <div class="hero"><svg viewBox="0 0 120 130" aria-hidden="true" class="hk2"></svg><div class="bubble" id="mText"></div></div>
+  <button class="btn ghost" id="mSay">もういちど きく</button>
+  <button class="btn grn" id="mDone">できた！</button>
+  <button class="btn ghost" id="mLater">あとで やる</button>
+</section>
+
+<!-- STAMP -->
+<section class="scr" id="stamp">
+  <div class="steps" id="stp4"></div>
+  <div class="q">すきな スタンプを えらんでね</div>
+  <div class="stamps" id="sOpts"></div>
+</section>
+
+<!-- DONE -->
+<section class="scr" id="done">
+  <div class="mark bounce" id="dStamp"></div>
+  <div class="q">きょうも できたね！</div>
+  <div class="card" style="text-align:center" id="dMsg"></div>
+  <button class="btn" data-to="home">おわり</button>
+</section>
+
+<!-- BOOK -->
+<section class="scr" id="book">
+  <div class="top"><div class="title" id="bMonth"></div><div class="cnt" id="bCount"></div></div>
+  <div class="cal" id="bCal"></div>
+  <div class="medals" id="bMedals"></div>
+  <div class="row2"><button class="btn ghost" id="bPrev">まえの つき</button><button class="btn ghost" id="bNextM">つぎの つき</button></div>
+  <button class="btn blue" data-to="home">もどる</button>
+</section>
+
+<!-- PLAY -->
+<section class="scr" id="play">
+  <div class="q">なにで あそぶ？</div>
+  <button class="btn" id="pRead">よみかた タッチ</button>
+  <button class="btn blue" id="pQuiz">くらべっこ れんしゅう</button>
+  <button class="btn grn" id="pTimer">ぴったり チャレンジ</button>
+  <button class="btn ghost" data-to="home">もどる</button>
+</section>
+
+<!-- READ TOUCH -->
+<section class="scr" id="read">
+  <div class="q">タッチすると よむよ</div>
+  <div class="grid3" id="rGrid"></div>
+  <div class="card" style="text-align:center;min-height:3.5em" id="rEx">たんいを タッチしてね</div>
+  <button class="btn ghost" data-to="play">もどる</button>
+</section>
+
+<!-- TIMER -->
+<section class="scr" id="timer">
+  <div class="q">めを つぶって かぞえてね</div>
+  <div class="seg" id="tSeg"></div>
+  <div class="timer" id="tDisp">10びょう</div>
+  <div class="fb" id="tFb"></div>
+  <button class="btn grn" id="tBtn">スタート</button>
+  <button class="btn ghost" data-to="play">もどる</button>
+</section>
+
+<!-- PARENT -->
+<section class="scr par" id="parent">
+  <div class="top"><div class="title" style="font-size:22px">おうちの方へ</div><button class="x" data-to="home" style="font-size:15px;padding:6px 14px">とじる</button></div>
+  <div class="talk"><b>今日の声かけ例</b><br><span id="pTalk"></span></div>
+  <h3>ステージ（いま学ぶ単位）</h3>
+  <div id="pStages"></div>
+  <p class="small">1週目は「じかん」から。慣れてきたら次へ。前のステージの単位も復習で出ます。</p>
+  <h3>きろく</h3>
+  <div id="pStats"></div>
+  <h3>生活で単位を使った場面（いちばん大事な指標）</h3>
+  <textarea id="pMemo" placeholder="例：スーパーで「このスイカ何キロ？」と自分から聞いた"></textarea>
+  <button class="btn grn" id="pSave" style="min-height:52px;font-size:18px">メモを保存</button>
+  <div id="pMemos"></div>
+  <h3>設定</h3>
+  <label class="toggle"><input type="checkbox" id="pSound" style="width:24px;height:24px"> 効果音と読み上げ</label>
+  <button class="btn ghost" id="pReset" style="margin-top:20px">記録をすべて消す</button>
+  <div id="pResetBox"></div>
+  <p class="small">記録はこの端末のブラウザ内だけに保存されます。</p>
+</section>
+
+</div>
+<script>
+{
+/* ---------- data ---------- */
+const STAGES=[
+ {n:1,name:'じかん',desc:'秒・分・時間'},
+ {n:2,name:'ながさ',desc:'cm・m'},
+ {n:3,name:'おもさ・かさ',desc:'g・kg・ml・L'},
+ {n:4,name:'おおきい・ちいさい',desc:'mm・km・t・dl・日・週・年'}];
+const DIM={time:{q:'どっちが ながい じかん？',adj:'ながい'},len:{q:'どっちが ながい？',adj:'ながい'},wt:{q:'どっちが おもい？',adj:'おもい'},vol:{q:'どっちが たくさん はいる？',adj:'たくさん はいる'}};
+const UNITS=[
+ {id:'s',sym:'秒',rd:'びょう',dim:'time',st:1,e:'⏱️',ex:'「いち」って いうくらいが 1びょう',ms:'めを つぶって 10びょう かぞえてみよう。おうちのひとに とけいで みてもらってね',talk:'信号が青になるまで「何秒かな？」と一緒に数える'},
+ {id:'min',sym:'分',rd:'ふん',dim:'time',st:1,e:'🪥',ex:'1ぷんは 60びょう。はみがきは 3ぷんくらい',ms:'3ぷんの タイマーを かけて、はみがき してみよう',talk:'はみがきや片付けで「あと何分？」とタイマーを見せる'},
+ {id:'h',sym:'時間',rd:'じかん',dim:'time',st:1,e:'🕐',ex:'1じかんは 60ぷん。こどもの アニメを 2かい みるくらい',ms:'ねる じかんと おきる じかんを とけいで みよう。なんじかん ねたかな？',talk:'朝「何時間寝たかな？」と時計で一緒に数える'},
+ {id:'cm',sym:'cm',rd:'センチメートル',dim:'len',st:2,e:'🐜',ex:'ありんこ 1ぴきが だいたい 1cm。1えんだまは 2cm',ms:'ものさしで じぶんの ゆびの ながさを はかってみよう',talk:'お絵描きの時に「この線、何センチ？」と定規を渡す'},
+ {id:'m',sym:'m',rd:'メートル',dim:'len',st:2,e:'🚪',ex:'1mは 100cm。えきの かいさつの たかさが だいたい 1m',ms:'メジャーを 1mまで のばして、なにと おなじくらいか さがそう',talk:'散歩で「あの木まで何メートルかな？」と歩数で予想'},
+ {id:'g',sym:'g',rd:'グラム',dim:'wt',st:3,e:'🪙',ex:'1えんだま 1まいが 1g',ms:'キッチンスケールに 1えんだまを のせてみよう。なんgかな？',talk:'料理で「バター10グラム」を一緒に量る'},
+ {id:'kg',sym:'kg',rd:'キログラム',dim:'wt',st:3,e:'🥛',ex:'ぎゅうにゅうパック 1ぽんが だいたい 1kg',ms:'ぎゅうにゅうパックを もってみよう。これが 1kgの おもさ！',talk:'スーパーで「このスイカ何キロかな？」と持たせる'},
+ {id:'ml',sym:'ml',rd:'ミリリットル',dim:'vol',st:3,e:'🥄',ex:'こさじ 1ぱいが 5ml',ms:'コップに みずを いれて、はかりカップで なんmlか みてみよう',talk:'飲み物のパックの「200ml」の字を一緒に読む'},
+ {id:'L',sym:'L',rd:'リットル',dim:'vol',st:3,e:'🧴',ex:'ぎゅうにゅうパック 1ぽんが 1L。500mlの ペットボトル 2ほんぶん',ms:'500mlの ペットボトルを 2ほん ならべて みよう。あわせて 1L！',talk:'お風呂で「お湯は何リットル入ってるかな？」と聞く'},
+ {id:'mm',sym:'mm',rd:'ミリメートル',dim:'len',st:4,e:'🍜',ex:'そうめん 1ぽんの ふとさが だいたい 1mm',ms:'ものさしの ちいさい めもりを 10こ かぞえてみよう。それで 1cm！',talk:'定規の小さい目盛りを「これが1ミリ」と見せる'},
+ {id:'km',sym:'km',rd:'キロメートル',dim:'len',st:4,e:'🚶',ex:'おとなが 15ふん あるくと だいたい 1km',ms:'おさんぽで 15ふん あるいてみよう。だいたい 1km！',talk:'車や電車で「あと何キロ」の看板を一緒に読む'},
+ {id:'t',sym:'t',rd:'トン',dim:'wt',st:4,e:'🚗',ex:'ちいさい くるま 1だいが だいたい 1t。1tは 1000kg',ms:'くるまを みて「なんトンかな？」と はなしてみよう',talk:'トラックの「2t」表示を見つけたら一緒に読む'},
+ {id:'dl',sym:'dl',rd:'デシリットル',dim:'vol',st:4,e:'🧃',ex:'えいようドリンク 1ぽんが 1dl。コップ はんぶんくらい',ms:'コップの はんぶんまで みずを いれてみよう。それが だいたい 1dl',talk:'計量カップの「1dl」の線まで水を入れてもらう'},
+ {id:'d',sym:'日',rd:'にち',dim:'time',st:4,e:'🌞',ex:'1にちは 24じかん',ms:'カレンダーで きょうは なんにちか みてみよう',talk:'カレンダーで「誕生日まであと何日？」を数える'},
+ {id:'w',sym:'週',rd:'しゅうかん',dim:'time',st:4,e:'📅',ex:'1しゅうかんは 7にち。にちようびから どようびまで',ms:'カレンダーで 1しゅうかんを ゆびで なぞってみよう',talk:'「来週の何曜日に〇〇しようね」と予定を話す'},
+ {id:'y',sym:'年',rd:'ねん',dim:'time',st:4,e:'🎂',ex:'1ねんは 365にち。たんじょうびが 1かい くる',ms:'「いま なんさい？ 1ねんたつと なんさい？」 おうちのひとと はなそう',talk:'「1年前は何してたかな」と写真を見返す'}];
+const U=Object.fromEntries(UNITS.map(u=>[u.id,u]));
+// [なまえ, え, 基準値(秒/mm/g/ml), かず, たんい, よみ(任意)]
+const ITEMS=[
+ ['てを 1かい たたく','👏',1,1,'s'],['10 かぞえる','🔟',10,10,'s'],['はみがき','🪥',180,3,'min','3ぷん'],['カップラーメンが できるまで','🍜',180,3,'min','3ぷん'],['ごはんを たべる','🍚',1800,30,'min','30ぷん'],['えいがを みる','🎬',7200,2,'h'],['ようちえんに いる','🏫',18000,5,'h'],['よる ねる','😴',36000,10,'h'],
+ ['いちにち','🌞',86400,1,'d'],['ようちえんに いく ひ（げつ〜きん）','🎒',432000,5,'d'],['げつようびから にちようびまで','📅',604800,1,'w'],['たんじょうびから つぎの たんじょうびまで','🎂',31536000,1,'y'],
+ ['ありんこ','🐜',10,1,'cm'],['1えんだまの はば','🪙',20,2,'cm'],['えんぴつ','✏️',170,17,'cm'],['バナナ','🍌',200,20,'cm'],['じぶんの せのたかさ','🧒',1100,110,'cm'],['ドアの たかさ','🚪',2000,2,'m'],['くるま','🚗',4000,4,'m'],['きりん','🦒',5000,5,'m'],['バス','🚌',10000,10,'m'],
+ ['そうめんの ふとさ','🍜',1,1,'mm'],['おとなが 15ふん あるく みち','🚶',1000000,1,'km'],['ふじさんの たかさ','🗻',3776000,4,'km'],
+ ['1えんだま','🪙',1,1,'g'],['いちご','🍓',15,15,'g'],['たまご','🥚',60,60,'g'],['りんご','🍎',300,300,'g'],['ぎゅうにゅうパック','🥛',1000,1,'kg'],['キャベツ','🥬',1000,1,'kg'],['ねこ','🐈',4000,4,'kg'],['すいか','🍉',5000,5,'kg'],['グランドピアノ','🎹',500000,500,'kg'],
+ ['くるま','🚗',1000000,1,'t'],['バス','🚌',10000000,10,'t'],
+ ['こさじ 1ぱい','🥄',5,5,'ml'],['コップ','🥤',200,200,'ml'],['ペットボトル','🧴',500,500,'ml'],['ぎゅうにゅうパック','🥛',1000,1,'L'],['バケツ','🪣',10000,10,'L'],['おふろ','🛁',200000,200,'L'],['えいようドリンク','🧃',100,1,'dl']
+].map(a=>({n:a[0],e:a[1],v:a[2],k:a[3],u:a[4],sp:a[5]||null,dim:U[a[4]].dim,st:U[a[4]].st}));
+const STAMPS=['⭐','🌸','🍓','🐰','🚗','🌈'];
+const MEDALS=[[5,'🥉 5こ'],[10,'🥈 10こ'],[20,'🥇 20こ'],[30,'👑 30こ'],[50,'🏆 50こ']];
+
+/* ---------- state ---------- */
+const KEY='taniMaster.v1';
+let S={stage:1,log:{},seen:{},stats:{},memos:[],sound:true};
+try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const dkey=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const unlocked=()=>UNITS.filter(u=>u.st<=S.stage);
+const items=()=>ITEMS.filter(i=>i.st<=S.stage);
+const amt=i=>i.k+U[i.u].sym;
+const spk=i=>i.sp||(i.k+U[i.u].rd);
+
+/* ---------- sound & voice ---------- */
+let ac=null;
+const tone=(f,t0,d,type='sine',g=.18)=>{const o=ac.createOscillator(),v=ac.createGain();o.type=type;o.frequency.value=f;v.gain.setValueAtTime(g,ac.currentTime+t0);v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t0+d);o.connect(v).connect(ac.destination);o.start(ac.currentTime+t0);o.stop(ac.currentTime+t0+d)};
+const sfx=k=>{if(!S.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(k==='ok'){tone(784,0,.18);tone(1047,.12,.35)}else if(k==='ng'){tone(392,0,.25,'triangle')}else if(k==='yay'){[523,659,784,1047].forEach((f,i)=>tone(f,i*.1,.3))}}catch(e){}};
+let jaVoice=null;
+const pickVoice=()=>{try{const vs=speechSynthesis.getVoices();jaVoice=vs.find(v=>/ja/i.test(v.lang)&&/Kyoko|O-ren|Google/i.test(v.name))||vs.find(v=>/ja/i.test(v.lang))||null}catch(e){}};
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
+const say=t=>{if(!S.sound)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.85;u.pitch=1.15;if(jaVoice)u.voice=jaVoice;speechSynthesis.speak(u)}catch(e){}};
+
+/* ---------- character ---------- */
+const HK=`<ellipse cx="60" cy="124" rx="34" ry="5" fill="#000" opacity=".12"/>
+<rect x="34" y="8" width="52" height="108" rx="12" fill="#ffd84a" stroke="#2a2f3a" stroke-width="4"/>
+<rect x="38" y="12" width="10" height="100" rx="5" fill="#fff" opacity=".45"/>
+<g stroke="#c08a2d" stroke-width="3" stroke-linecap="round"><line x1="34" y1="26" x2="46" y2="26"/><line x1="34" y1="44" x2="42" y2="44"/><line x1="34" y1="62" x2="46" y2="62"/><line x1="34" y1="80" x2="42" y2="80"/><line x1="34" y1="98" x2="46" y2="98"/></g>
+<circle cx="58" cy="42" r="5" fill="#2a2f3a"/><circle cx="74" cy="42" r="5" fill="#2a2f3a"/><circle cx="60" cy="40" r="1.6" fill="#fff"/><circle cx="76" cy="40" r="1.6" fill="#fff"/>
+<circle cx="53" cy="54" r="4.5" fill="#ff9c8a" opacity=".7"/><circle cx="80" cy="54" r="4.5" fill="#ff9c8a" opacity=".7"/>
+<path d="M59 54 Q66 62 73 54" stroke="#2a2f3a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<path d="M86 70 q14 -8 18 -22" stroke="#2a2f3a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="104" cy="46" r="5" fill="#ffd84a" stroke="#2a2f3a" stroke-width="3"/>
+<path d="M34 72 q-12 8 -14 20" stroke="#2a2f3a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+$('hkr').innerHTML=HK;document.querySelectorAll('.hk2').forEach(s=>s.innerHTML=HK);
+
+/* ---------- navigation ---------- */
+const show=id=>{document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);try{speechSynthesis.cancel()}catch(e){}if(id==='home')renderHome();if(id==='book'){bm=new Date();bm.setDate(1);renderBook()}if(id==='parent')renderParent()};
+document.querySelectorAll('[data-to]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.to)));
+const stepBar=(el,n)=>{$(el).innerHTML=[0,1,2,3].map(i=>`<i class="${i<n?'done':i===n?'on':''}"></i>`).join('')};
+
+/* ---------- today ---------- */
+const todayUnit=()=>{const t=S.log[dkey()];if(t&&U[t.u])return U[t.u];const su=UNITS.filter(u=>u.st===S.stage);const c=Object.values(S.log).filter(l=>su.some(u=>u.id===l.u)).length;return su[c%su.length]};
+const total=()=>Object.keys(S.log).length;
+const renderHome=()=>{
+ const u=todayUnit(),t=S.log[dkey()];
+ $('hCount').textContent='スタンプ '+total();
+ if(t){$('hMsg').textContent='きょうは もう できたね！ すごい！';
+  $('hToday').innerHTML=`<div class="card" style="text-align:center"><div style="font-size:64px;line-height:1.1">${t.s}</div>きょうの たんい「${esc(u.sym)}」 クリア！</div><button class="btn ghost" id="again">もういちど あそぶ</button>`;
+  $('again').addEventListener('click',()=>startDay(true));
+ }else{$('hMsg').textContent='きょうの たんいは なにかな？';
+  $('hToday').innerHTML=`<button class="btn" id="go" style="min-height:120px;flex-direction:column;gap:0"><span style="font-size:18px">きょうの たんい</span><span style="font-size:52px;font-weight:900;line-height:1.1">${esc(u.sym)}</span><span style="font-size:18px">はじめる</span></button>`;
+  $('go').addEventListener('click',()=>startDay(false));
+ }
+};
+
+/* ---------- daily flow ---------- */
+let sess=null;
+const startDay=replay=>{const u=todayUnit();sess={u,replay,mode:'day'};
+ stepBar('stp1',0);$('lPic').textContent=u.e;$('lSym').textContent=u.sym;$('lRd').textContent=u.rd;$('lEx').textContent=u.ex;
+ show('learn');setTimeout(()=>say(`きょうの たんいは、${u.rd}。${u.ex}。いっしょに いってみよう。${u.rd}！`),250)};
+$('lSay').addEventListener('click',()=>{const u=sess.u;say(`${u.rd}。${u.ex}`)});
+$('lNext').addEventListener('click',()=>{S.seen[sess.u.id]=dkey();save();startQuiz(buildDay(sess.u),()=>toMission())});
+
+/* ---------- quiz makers ---------- */
+const mkRead=u=>{const same=unlocked().filter(x=>x.id!==u.id);const pool=shuf(same.filter(x=>x.dim===u.dim)).concat(shuf(same.filter(x=>x.dim!==u.dim)));
+ const opts=shuf([u,...pool.slice(0,2)]);
+ return{u:u.id,text:`「${u.rd}」は どれ？`,voice:`${u.rd} は どれ？`,prompt:'',
+  opts:opts.map(o=>({id:o.id,html:`<span class="big">${esc(o.sym)}</span>`})),ans:u.id,exp:`これが ${u.rd}`,expT:`${u.sym} ＝ ${u.rd}`}};
+const mkCmp=dim=>{const pool=items().filter(i=>i.dim===dim);let a,b,n=0;
+ do{a=rnd(pool);b=rnd(pool);n++}while(n<200&&(a===b||Math.max(a.v,b.v)/Math.min(a.v,b.v)<2));
+ if(!a||a===b)return null;const w=a.v>b.v?a:b,adj=DIM[dim].adj;
+ return{u:w.u,text:DIM[dim].q,voice:DIM[dim].q,prompt:'',cmp:true,
+  opts:[a,b].map((o,ix)=>({id:'i'+ix,it:o,html:`<span class="pic">${o.e}</span><span class="nm">${esc(o.n)}</span><span class="amt" data-amt="${esc(amt(o))}"></span>`})),
+  ans:a===w?'i0':'i1',exp:`${a.n}は ${spk(a)}、${b.n}は ${spk(b)}。${w.n}の ほうが ${adj}ね`,expT:`${w.n}の ほうが ${adj}ね`}};
+const mkUnit=u=>{let pool=items().filter(i=>i.u===u.id);if(!pool.length)pool=items().filter(i=>i.dim===u.dim);if(!pool.length)return null;
+ const it=rnd(pool),cu=U[it.u];const ul=unlocked().filter(x=>x.id!==cu.id);
+ const ds=shuf(ul.filter(x=>x.dim===cu.dim)).concat(shuf(ul.filter(x=>x.dim!==cu.dim))).slice(0,2);
+ const opts=shuf([cu,...ds]);
+ return{u:cu.id,text:'□に はいる たんいは どれ？',voice:`${it.n}は ${it.k} なに？`,
+  prompt:`<div class="prompt"><span class="pic">${it.e}</span>${esc(it.n)}は ${it.k} <span class="box">？</span></div>`,
+  opts:opts.map(o=>({id:o.id,html:`<span class="big">${esc(o.sym)}</span><span class="nm">${esc(o.rd)}</span>`})),ans:cu.id,exp:`${it.n}は ${spk(it)}`,expT:`${it.n}は ${amt(it)}`}};
+const review=u=>{const ul=unlocked().filter(x=>x.id!==u.id);if(!ul.length)return null;ul.sort((a,b)=>(S.seen[a.id]||'').localeCompare(S.seen[b.id]||''));const r=ul[0];S.seen[r.id]=dkey();return Math.random()<.5?mkUnit(r):mkRead(r)};
+const buildDay=u=>[mkRead(u),mkCmp(u.dim),mkUnit(u),review(u)||mkCmp(u.dim)].filter(Boolean);
+const buildPractice=()=>{const dims=[...new Set(unlocked().map(u=>u.dim))];const qs=[];for(let i=0;i<5;i++){qs.push(i%2?mkUnit(rnd(unlocked())):mkCmp(rnd(dims)))}return qs.filter(Boolean)};
+
+/* ---------- quiz engine ---------- */
+let Q=null;
+const startQuiz=(qs,onEnd)=>{Q={qs,i:0,onEnd,ok:0};stepBar('stp2',1);$('stp2').style.display=sess&&sess.mode==='day'?'':'none';show('quiz');renderQ()};
+const renderQ=()=>{const q=Q.qs[Q.i];Q.lock=false;
+ $('qNum').textContent=`${Q.i+1} / ${Q.qs.length}`;$('qText').textContent=q.text;$('qPrompt').innerHTML=q.prompt;
+ $('qOpts').innerHTML=q.opts.map(o=>`<button class="opt" data-id="${o.id}">${o.html}</button>`).join('');
+ $('qOpts').style.gridTemplateColumns=`repeat(${q.opts.length},minmax(0,1fr))`;
+ $('qFb').textContent='';$('qFb').className='fb';$('qNext').style.visibility='hidden';
+ $('qOpts').querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>answer(b.dataset.id)));
+ setTimeout(()=>say(q.voice),200)};
+const answer=id=>{if(Q.lock)return;Q.lock=true;const q=Q.qs[Q.i],ok=id===q.ans;
+ const st=S.stats[q.u]||(S.stats[q.u]={ok:0,ng:0});ok?st.ok++:st.ng++;save();if(ok)Q.ok++;
+ $('qOpts').querySelectorAll('.opt').forEach(b=>{b.classList.add(b.dataset.id===q.ans?'ok':'ng');const a=b.querySelector('[data-amt]');if(a)a.textContent=a.dataset.amt});
+ $('qFb').className='fb '+(ok?'ok':'ng');$('qFb').textContent=(ok?'せいかい！ ':'おしい！ ')+q.expT;
+ sfx(ok?'ok':'ng');setTimeout(()=>say((ok?'せいかい！':'おしい！ こたえは こっち。')+q.exp),350);
+ $('qNext').textContent=Q.i<Q.qs.length-1?'つぎへ':'おわり';$('qNext').style.visibility='visible'};
+$('qNext').addEventListener('click',()=>{Q.i++;if(Q.i<Q.qs.length)renderQ();else Q.onEnd(Q)});
+
+/* ---------- mission & stamp ---------- */
+const toMission=()=>{stepBar('stp3',2);$('mText').textContent=sess.u.ms;show('mission');setTimeout(()=>say('おうち ミッション。'+sess.u.ms),250)};
+$('mSay').addEventListener('click',()=>say(sess.u.ms));
+const toStamp=()=>{if(sess.replay){finish(S.log[dkey()].s);return}stepBar('stp4',3);
+ $('sOpts').innerHTML=STAMPS.map(s=>`<button data-s="${s}">${s}</button>`).join('');
+ $('sOpts').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{S.log[dkey()]={u:sess.u.id,s:b.dataset.s};save();finish(b.dataset.s)}));
+ show('stamp');say('すきな スタンプを えらんでね')};
+$('mDone').addEventListener('click',()=>{sfx('ok');toStamp()});
+$('mLater').addEventListener('click',toStamp);
+const finish=s=>{$('dStamp').textContent=s;const n=total();const next=MEDALS.find(m=>m[0]>n);
+ $('dMsg').textContent=`スタンプ ${n}こ！`+(next?` あと ${next[0]-n}こで ${next[1].split(' ')[0]}`:' ぜんぶ あつめたよ！');
+ show('done');sfx('yay');say(`やったね！ スタンプ ${n}こ！`);
+ const d=$('dStamp');d.classList.remove('bounce');void d.offsetWidth;d.classList.add('bounce')};
+
+/* ---------- stamp book ---------- */
+let bm=new Date();bm.setDate(1);
+const renderBook=()=>{const y=bm.getFullYear(),m=bm.getMonth();$('bMonth').textContent=`${m+1}がつ`;$('bCount').textContent='ぜんぶで '+total()+'こ';
+ const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),td=dkey();let h=['にち','げつ','か','すい','もく','きん','ど'].map(w=>`<b>${w}</b>`).join('');
+ for(let i=0;i<first;i++)h+='<span class="x"></span>';
+ for(let d=1;d<=days;d++){const k=dkey(new Date(y,m,d)),l=S.log[k];h+=`<span class="${k===td?'today':''}">${d}${l?`<em>${l.s}</em>`:''}</span>`}
+ $('bCal').innerHTML=h;const n=total();$('bMedals').innerHTML=MEDALS.map(x=>`<span class="medal ${n>=x[0]?'got':''}">${x[1]}</span>`).join('')};
+$('bPrev').addEventListener('click',()=>{bm.setMonth(bm.getMonth()-1);renderBook()});
+$('bNextM').addEventListener('click',()=>{bm.setMonth(bm.getMonth()+1);renderBook()});
+
+/* ---------- play ---------- */
+$('pRead').addEventListener('click',()=>{$('rGrid').innerHTML=unlocked().map(u=>`<button data-u="${u.id}"><span class="sy">${esc(u.sym)}</span><span class="rd">${esc(u.rd)}</span></button>`).join('');
+ $('rGrid').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const u=U[b.dataset.u];$('rEx').textContent=`${u.e} ${u.sym}（${u.rd}）… ${u.ex}`;say(`${u.rd}。${u.ex}`)}));
+ $('rEx').textContent='たんいを タッチしてね';show('read')});
+$('pQuiz').addEventListener('click',()=>{sess={mode:'practice'};startQuiz(buildPractice(),q=>{$('dStamp').textContent='💮';$('dMsg').textContent=`${q.qs.length}もん ちゅう ${q.ok}もん せいかい！`;show('done');sfx('yay');say(`${q.ok}もん せいかい！ よく できました`)})});
+
+/* ---------- timer challenge ---------- */
+let tGoal=10,tStart=0;
+const segs=[5,10,30];
+const renderSeg=()=>{$('tSeg').innerHTML=segs.map(s=>`<button class="${s===tGoal?'on':''}" data-s="${s}">${s}びょう</button>`).join('');$('tSeg').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{if(tStart)return;tGoal=+b.dataset.s;renderSeg();$('tDisp').textContent=tGoal+'びょう'}))};
+$('pTimer').addEventListener('click',()=>{tStart=0;renderSeg();$('tDisp').textContent=tGoal+'びょう';$('tFb').textContent='';$('tBtn').textContent='スタート';show('timer');say(`${tGoal}びょう ぴったりで ストップを おしてね`)});
+$('tBtn').addEventListener('click',()=>{
+ if(!tStart){tStart=performance.now();$('tDisp').textContent='？';$('tFb').textContent='こころで かぞえてね…';$('tFb').className='fb';$('tBtn').textContent='ストップ！';say('スタート！');return}
+ const sec=(performance.now()-tStart)/1000;tStart=0;const diff=sec-tGoal,r=Math.round(sec*10)/10,dd=Math.round(Math.abs(diff)*10)/10;
+ $('tDisp').textContent=r.toFixed(1)+'びょう';$('tBtn').textContent='もういちど';
+ let m;if(Math.abs(diff)<=.5){m='ぴったり！ すごい！';sfx('yay')}else if(diff<0){m=`はやかった！ あと ${dd}びょう`;sfx('ng')}else{m=`${dd}びょう すぎたよ`;sfx('ng')}
+ $('tFb').className='fb '+(Math.abs(diff)<=.5?'ok':'ng');$('tFb').textContent=m;say(`${r}びょう。${m}`)});
+
+/* ---------- parent ---------- */
+let gT=null,gS=0;
+const gateDown=e=>{e.preventDefault();gS=performance.now();const f=$('pFill');const tick=()=>{const p=Math.min(1,(performance.now()-gS)/1200);f.style.width=p*100+'%';if(p>=1){gateUp();show('parent')}else gT=requestAnimationFrame(tick)};gT=requestAnimationFrame(tick)};
+const gateUp=()=>{cancelAnimationFrame(gT);$('pFill').style.width='0'};
+$('pGate').addEventListener('pointerdown',gateDown);['pointerup','pointerleave','pointercancel'].forEach(ev=>$('pGate').addEventListener(ev,gateUp));
+const renderParent=()=>{
+ $('pTalk').textContent=todayUnit().talk;
+ $('pStages').innerHTML=STAGES.map(s=>`<button class="btn ${s.n===S.stage?'':'ghost'}" data-st="${s.n}" style="min-height:52px;font-size:17px;margin:8px 0">ステージ${s.n}　${s.name}（${s.desc}）</button>`).join('');
+ $('pStages').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{S.stage=+b.dataset.st;save();renderParent()}));
+ const rows=unlocked().map(u=>{const s=S.stats[u.id]||{ok:0,ng:0};return`<tr><td>${esc(u.sym)}（${esc(u.rd)}）</td><td class="n">${s.ok}</td><td class="n">${s.ng}</td></tr>`}).join('');
+ $('pStats').innerHTML=`<p>スタンプ：<b>${total()}</b>日　／　いまのステージ：<b>${S.stage}</b></p><table><thead><tr><th>単位</th><th class="n">正解</th><th class="n">おしい</th></tr></thead><tbody>${rows}</tbody></table>`;
+ $('pSound').checked=!!S.sound;renderMemos();$('pResetBox').innerHTML=''};
+const renderMemos=()=>{$('pMemos').innerHTML=S.memos.length?S.memos.map((m,i)=>`<div class="memo"><div><small>${esc(m.d)}</small><br>${esc(m.t)}</div><button class="x" data-i="${i}">削除</button></div>`).join(''):'<p class="small">まだメモはありません。週1回、気づいた場面を1行で。</p>';
+ $('pMemos').querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{S.memos.splice(+b.dataset.i,1);save();renderMemos()}))};
+$('pSave').addEventListener('click',()=>{const t=$('pMemo').value.trim();if(!t)return;S.memos.unshift({d:dkey(),t});$('pMemo').value='';save();renderMemos()});
+$('pSound').addEventListener('change',e=>{S.sound=e.target.checked;save()});
+$('pReset').addEventListener('click',()=>{$('pResetBox').innerHTML='<div class="card" style="font-size:16px">スタンプ・記録・メモがすべて消えます。元に戻せません。<button class="btn" id="pResetYes" style="min-height:52px;font-size:17px">消す</button><button class="btn ghost" id="pResetNo">やめる</button></div>';
+ $('pResetYes').addEventListener('click',()=>{S={stage:1,log:{},seen:{},stats:{},memos:[],sound:true};save();renderParent()});
+ $('pResetNo').addEventListener('click',()=>{$('pResetBox').innerHTML=''})});
+
+renderHome();
+}
+</script>
+</body>
+</html>
